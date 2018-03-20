@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList, Modal, Button, Dimensions } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList, Modal, Button, ActivityIndicator, Dimensions } from "react-native";
 
 import { Container, Header, Content, Right, Left, Body, ListItem, List, Icon } from "native-base";
 //library for creating grid layouts..
@@ -18,7 +18,9 @@ export default class GalleryScreen extends React.Component {
         this.state = {
             sortmodalv: false,
             searchmodalv: false,
-            products: []
+            products: [],
+            isLoading: true,
+            isEmpty: false
         };
     }
 
@@ -51,16 +53,40 @@ export default class GalleryScreen extends React.Component {
                     console.log("productsvalue", childkey);
                     // ...
                 });*/
-                this.setState({
-                    products: Object.values(data.val())
-                });
-                //console.log("datas", Object.values(data.val()));
+                if (data.val() != undefined) {
+                    this.setState({
+                        products: Object.values(data.val()),
+                        isLoading: false
+                        //console.log("datas", Object.values(data.val()));
+                    });
+                } else {
+                    this.setState({ products: [], isEmpty: true });
+                }
             });
     }
 
     render() {
         this.navigate = this.props.navigation.navigate;
         const width = Dimensions.get("window").width;
+        const height = Dimensions.get("window").height;
+        const loader = <ActivityIndicator size="large" color="#0097A7" />;
+        const dataview = (
+            <FlatList
+                data={this.state.products}
+                horizontal={false}
+                numColumns={2}
+                initialNumToRender={1}
+                renderItem={({ item }) => (
+                    <ListItem>
+                        <ProTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
+                    </ListItem>
+                )}
+                keyExtractor={(item) => item.pid}
+            />
+        );
+        const empty = <Text style={{ marginHorizontal: width / 3.5, marginVertical: height / 4, fontSize: 16, color: "grey" }}>No Products on Showcase!</Text>;
+        const networkerror = <Text>Check your internet connection</Text>;
+
         return (
             <View style={styles.container}>
                 <Header style={styles.headeri}>
@@ -106,18 +132,8 @@ export default class GalleryScreen extends React.Component {
                 </Modal>
 
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                    <FlatList
-                        data={this.state.products}
-                        horizontal={false}
-                        numColumns={2}
-                        initialNumToRender={1}
-                        renderItem={({ item }) => (
-                            <ListItem>
-                                <ProTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
-                            </ListItem>
-                        )}
-                        keyExtractor={(item) => item.pid}
-                    />
+                    {this.state.isLoading ? loader : dataview}
+                    {this.state.isEmpty ? empty : null}
                 </ScrollView>
             </View>
         );

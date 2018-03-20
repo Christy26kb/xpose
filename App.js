@@ -20,20 +20,28 @@ const firebaseconfig = {
 firebase.initializeApp(firebaseconfig);
 
 export default class App extends React.Component {
-    state = {
-        isLoadingComplete: false,
-        login: false
-    };
+    constructor(props) {
+        super(props);
+        this.flow();
+        this.state = {
+            isLoadingComplete: false,
+            login: false
+        };
+    }
 
+    flow = () => {
+        var u = firebase.auth().currentUser;
+        if (u) {
+            this.setState({ login: true });
+        }
+    };
     //TODO:Use componentDidMount or other lifecycle method to solve login state problem,read from async storage there.
 
     render() {
-        var f = 1;
-
         if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
             return <AppLoading startAsync={this._loadResourcesAsync} onError={this._handleLoadingError} onFinish={this._handleFinishLoading} />;
         } else {
-            if (f) {
+            if (1) {
                 // User is signed in.
                 return (
                     <View style={styles.container}>
@@ -67,7 +75,6 @@ export default class App extends React.Component {
                 require("./assets/images/sort.png"),
                 require("./assets/images/feedback.png"),
                 require("./assets/images/send.png")
-                
             ]),
             Expo.Font.loadAsync({
                 // Fonts can be loaded here
@@ -78,7 +85,7 @@ export default class App extends React.Component {
         ]);
 
         //.. Load data from asynstorage  for the  login state:{true/false}..
-        var user = firebase.auth().onAuthStateChanged(function(user) {
+        /*var user = firebase.auth().onAuthStateChanged(function(user) {
             if (user) {
                 // User is signed in.
                 alert("Signed in!");
@@ -88,7 +95,7 @@ export default class App extends React.Component {
                 alert("Signed out!");
                 f = 0;
             }
-        });
+        });*/
     };
 
     _handleLoadingError = (error) => {

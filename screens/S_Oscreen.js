@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, View, Text, FlatList } from "react-native";
 
 import { Container, Header, Content, Body, ListItem, List, Icon } from "native-base";
 import { NavigationActions, StackNavigator } from "react-navigation";
@@ -10,7 +10,8 @@ export default class S_Oscreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            currentorderdata: []
+            currentorderdata: [],
+            isLoading: true
         };
     }
 
@@ -44,7 +45,7 @@ export default class S_Oscreen extends Component {
                     .ref("/products/" + data.key)
                     .on("value", (dat) => {
                         this.state.currentorderdata.push(dat.val());
-                        this.setState({ currentorderdata: this.state.currentorderdata });
+                        this.setState({ currentorderdata: this.state.currentorderdata, isLoading: false });
                     });
             });
     }
@@ -53,6 +54,19 @@ export default class S_Oscreen extends Component {
         //->Recieving data sent from OrdersScreen.
         const r_data = this.props.navigation.state.params;
         this.navigate = this.props.navigation.navigate;
+        const dataview = (
+            <FlatList
+                data={this.state.currentorderdata}
+                initialNumToRender={2}
+                renderItem={({ item }) => (
+                    <ListItem>
+                        <DetailOrderTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
+                    </ListItem>
+                )}
+                keyExtractor={(item) => item.pid}
+            />
+        );
+        const loader = <ActivityIndicator size="large" color="#0097A7" />;
         return (
             <View style={styles.container}>
                 <Header style={styles.headeri}>
@@ -63,16 +77,7 @@ export default class S_Oscreen extends Component {
                 </Header>
 
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                    <FlatList
-                        data={this.state.currentorderdata}
-                        initialNumToRender={2}
-                        renderItem={({ item }) => (
-                            <ListItem>
-                                <DetailOrderTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
-                            </ListItem>
-                        )}
-                        keyExtractor={(item) => item.pid}
-                    />
+                    {this.state.isLoading ? loader : dataview}
                 </ScrollView>
             </View>
         );

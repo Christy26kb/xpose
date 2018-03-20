@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList, Modal, Button } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions, FlatList, Modal, ActivityIndicator, Button } from "react-native";
 
 import { ListItem, List, Header, Picker, Footer, FooterTab } from "native-base";
 
@@ -17,7 +17,9 @@ export default class CartScreen extends React.Component {
         this.state = {
             addressmodalv: false,
             cartproducts: [],
-            carttotal: ""
+            carttotal: "",
+            isLoading: true,
+            isEmpty: false
         };
     }
     static navigationOptions = {
@@ -43,18 +45,24 @@ export default class CartScreen extends React.Component {
             .child(uid)
             .on("value", (data) => {
                 //Logic for iterate data from 1st level before 2nd level process.
-                data.forEach(function(Snapshot) {
-                    var c = Snapshot.key;
-                    firebase
-                        .database()
-                        .ref("/products/" + c)
-                        .on("value", (dat) => {
-                            sum = sum + dat.val().price;
-                            var x = dat.val();
-                            update.push(x);
-                        });
-                });
-                this.setState({ cartproducts: update, carttotal: sum });
+                if (data.val() != undefined) {
+                    data.forEach(function(Snapshot) {
+                        var c = Snapshot.key;
+                        firebase
+                            .database()
+                            .ref("/products/" + c)
+                            .on("value", (dat) => {
+                                if (dat.val() != undefined) {
+                                    sum = sum + dat.val().price;
+                                    var x = dat.val();
+                                    update.push(x);
+                                }
+                            });
+                    });
+                    this.setState({ cartproducts: update, carttotal: sum, isLoading: false });
+                } else {
+                    this.setState({ cartproducts: [], isEmpty: true, isLoading: false });
+                }
             });
     };
 
@@ -171,6 +179,28 @@ export default class CartScreen extends React.Component {
     render() {
         //console.log("updatedcartproductsstate:", this.state.cartproducts);
         this.navigate = this.props.navigation.navigate;
+        const width = Dimensions.get("window").width;
+        const height = Dimensions.get("window").height;
+        const dataview = (
+            <FlatList
+                data={this.state.cartproducts}
+                initialNumToRender={2}
+                renderItem={({ item }) => (
+                    <ListItem>
+                        <CarTile
+                            item={item}
+                            updateCartState={this.updateCartState.bind(this)}
+                            _handleTileNavigation={this._handleTileNavigation.bind(this)}
+                            fetchCartData={this.fetchCartData.bind(this)}
+                        />
+                    </ListItem>
+                )}
+                keyExtractor={(item) => item.pid}
+            />
+        );
+        const loader = <ActivityIndicator size="large" color="#0097A7" />;
+        const empty = <Text style={{ marginHorizontal: width / 3.5, marginVertical: height / 4, fontSize: 16, color: "grey" }}>Your cart is empty</Text>;
+        const networkerror = <Text>Check your internet connection</Text>;
         return (
             <View style={styles.container}>
                 <Header style={styles.headeri}>
@@ -181,21 +211,8 @@ export default class CartScreen extends React.Component {
                 </Header>
 
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                    <FlatList
-                        data={this.state.cartproducts}
-                        initialNumToRender={2}
-                        renderItem={({ item }) => (
-                            <ListItem>
-                                <CarTile
-                                    item={item}
-                                    updateCartState={this.updateCartState.bind(this)}
-                                    _handleTileNavigation={this._handleTileNavigation.bind(this)}
-                                    fetchCartData={this.fetchCartData.bind(this)}
-                                />
-                            </ListItem>
-                        )}
-                        keyExtractor={(item) => item.pid}
-                    />
+                    {this.state.isLoading ? loader : dataview}
+                    {this.state.isEmpty ? empty : null}
                 </ScrollView>
 
                 <Footer style={{ height: 50, borderTopWidth: 0.5, borderTopColor: "#0097A7" }}>

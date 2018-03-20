@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions, ActivityIndicator, View, FlatList } from "react-native";
 import { Container, Header, Content, Right, Left, Body, ListItem, List } from "native-base";
 
 import { NavigationActions } from "react-navigation";
@@ -11,7 +11,9 @@ export default class OrdersScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            ordersdat: []
+            ordersdat: [],
+            isLoading: true,
+            isEmpty: false
         };
     }
     static navigationOptions = {
@@ -27,14 +29,6 @@ export default class OrdersScreen extends React.Component {
             routeName: route
         });
         this.props.navigation.dispatch(navigateAction);
-    };
-
-    test = () => {
-        if (Object.values(this.state.ordersdat) == undefined) {
-            return <Text>Hello</Text>;
-        } else {
-            return <Text>Hai</Text>;
-        }
     };
     componentWillMount() {
         //TODO:'User1' will be a dynamic key obtained from user.
@@ -52,16 +46,34 @@ export default class OrdersScreen extends React.Component {
             .on("value", (data) => {
                 if (data.val() != undefined) {
                     this.setState({
-                        ordersdat: Object.values(data.val())
+                        ordersdat: Object.values(data.val()),
+                        isLoading: false
                     });
                 } else {
-                    this.setState({ ordersdat: [] });
+                    this.setState({ ordersdat: [], isEmpty: true, isLoading: false });
                 }
             });
     }
 
     render() {
         this.navigate = this.props.navigation.navigate;
+        const width = Dimensions.get("window").width;
+        const height = Dimensions.get("window").height;
+        const dataview = (
+            <FlatList
+                data={this.state.ordersdat}
+                initialNumToRender={2}
+                renderItem={({ item }) => (
+                    <ListItem>
+                        <OrdTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
+                    </ListItem>
+                )}
+                keyExtractor={(item) => item.oid}
+            />
+        );
+        const loader = <ActivityIndicator size="large" color="#0097A7" />;
+        const empty = <Text style={{ marginHorizontal: width / 4, marginVertical: height / 4, fontSize: 16, color: "grey" }}>Currently no orders!</Text>;
+        const networkerror = <Text>Check your internet connection</Text>;
         return (
             <View style={styles.container}>
                 <Header style={styles.headeri}>
@@ -71,18 +83,9 @@ export default class OrdersScreen extends React.Component {
                     <Text style={{ marginHorizontal: 60, color: "#FFF", fontSize: 16, fontWeight: "bold" }}>My Orders</Text>
                 </Header>
 
-                {this.test()}
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                    <FlatList
-                        data={this.state.ordersdat}
-                        initialNumToRender={2}
-                        renderItem={({ item }) => (
-                            <ListItem>
-                                <OrdTile item={item} _handleTileNavigation={this._handleTileNavigation.bind(this)} />
-                            </ListItem>
-                        )}
-                        keyExtractor={(item) => item.oid}
-                    />
+                    {this.state.isLoading ? loader : dataview}
+                    {this.state.isEmpty ? empty : null}
                 </ScrollView>
             </View>
         );

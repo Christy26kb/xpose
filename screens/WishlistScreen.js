@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Dimensions, View, FlatList } from "react-native";
 
 import { ListItem, List, Header } from "native-base";
 
@@ -14,7 +14,9 @@ export default class WishlistScreen extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            wproducts: []
+            wproducts: [],
+            isLoading: true,
+            isEmpty: false
         };
     }
     static navigationOptions = {
@@ -51,23 +53,49 @@ export default class WishlistScreen extends React.Component {
             .child(uid)
             .on("value", (data) => {
                 //Logic for iterate data from 1st level before 2nd level process.
-                data.forEach(function(Snapshot) {
-                    var c = Snapshot.key;
-                    firebase
-                        .database()
-                        .ref("/products/" + c)
-                        .on("value", (dat) => {
-                            var x = dat.val();
-                            update.push(x);
-                        });
-                });
-                this.setState({ wproducts: update });
+                if (data.val() != undefined) {
+                    data.forEach(function(Snapshot) {
+                        var c = Snapshot.key;
+                        firebase
+                            .database()
+                            .ref("/products/" + c)
+                            .on("value", (dat) => {
+                                var x = dat.val();
+                                update.push(x);
+                            });
+                    });
+
+                    this.setState({ wproducts: update, isLoading: false });
+                } else {
+                    this.setState({ wproducts: [], isEmpty: true, isLoading: false });
+                }
             });
     };
 
     render() {
         this.navigate = this.props.navigation.navigate;
         //console.log("empty check", Object.values(this.state.wproducts[0]));
+        const width = Dimensions.get("window").width;
+        const height = Dimensions.get("window").height;
+        const dataview = (
+            <FlatList
+                data={this.state.wproducts}
+                initialNumToRender={2}
+                renderItem={({ item }) => (
+                    <ListItem>
+                        <WishTile
+                            item={item}
+                            _handleTileNavigation={this._handleTileNavigation.bind(this)}
+                            fetchWishlistData={this.fetchWishlistData.bind(this)}
+                        />
+                    </ListItem>
+                )}
+                keyExtractor={(item) => item.pid}
+            />
+        );
+        const loader = <ActivityIndicator size="large" color="#0097A7" />;
+        const empty = <Text style={{ marginHorizontal: width / 4, marginVertical: height / 3.5, fontSize: 16, color: "grey" }}>Your wishlist is empty</Text>;
+        const networkerror = <Text>Check your internet connection</Text>;
         return (
             <View style={styles.container}>
                 <Header style={styles.headeri}>
@@ -78,20 +106,8 @@ export default class WishlistScreen extends React.Component {
                 </Header>
 
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
-                    <FlatList
-                        data={this.state.wproducts}
-                        initialNumToRender={2}
-                        renderItem={({ item }) => (
-                            <ListItem>
-                                <WishTile
-                                    item={item}
-                                    _handleTileNavigation={this._handleTileNavigation.bind(this)}
-                                    fetchWishlistData={this.fetchWishlistData.bind(this)}
-                                />
-                            </ListItem>
-                        )}
-                        keyExtractor={(item) => item.pid}
-                    />
+                    {this.state.isLoading ? loader : dataview}
+                    {this.state.isEmpty ? empty : null}
                 </ScrollView>
             </View>
         );
