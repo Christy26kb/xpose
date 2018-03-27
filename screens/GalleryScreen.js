@@ -1,5 +1,20 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList, Modal, Button, ActivityIndicator, Dimensions } from "react-native";
+import {
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+    Text,
+    TextInput,
+    FlatList,
+    Modal,
+    Button,
+    ActivityIndicator,
+    Dimensions,
+    Slider
+} from "react-native";
 
 import { Container, Header, Content, Right, Left, Body, ListItem, List, Icon } from "native-base";
 //library for creating grid layouts..
@@ -8,6 +23,8 @@ import * as firebase from "firebase";
 import menu from "../assets/images/menu.png";
 import searchw from "../assets/images/searchw.png";
 import sorte from "../assets/images/sort.png";
+import searchback from "../assets/images/searchback.png";
+import searchclear from "../assets/images/searchclear.png";
 
 import { MonoText } from "../components/StyledText";
 import ProTile from "../components/ProTile";
@@ -19,8 +36,11 @@ export default class GalleryScreen extends React.Component {
             sortmodalv: false,
             searchmodalv: false,
             products: [],
+            orgproducts: [],
             isLoading: true,
-            isEmpty: false
+            isEmpty: false,
+            searchText: "",
+            priceSlider: 1
         };
     }
 
@@ -43,6 +63,27 @@ export default class GalleryScreen extends React.Component {
         this.navigate(pageName, propsObject);
     };
 
+    searchProducts = (p1) => () => {
+        const data = this.state.orgproducts;
+        var updated = [];
+        updated = data.filter(function(product) {
+            let s1 = product.name.toLowerCase();
+            let s2 = p1.toLowerCase();
+            if (s1 == s2) {
+                return product;
+            }
+        });
+        this.setState({ products: updated });
+        //console.log("filtered data", updated);
+    };
+
+    priceFilter(f1) {
+        const data = this.state.orgproducts;
+        var update = [];
+        update = data.filter((product) => product.price < f1);
+        this.setState({ products: update });
+    }
+
     componentWillMount() {
         return firebase
             .database()
@@ -56,11 +97,12 @@ export default class GalleryScreen extends React.Component {
                 if (data.val() != undefined) {
                     this.setState({
                         products: Object.values(data.val()),
+                        orgproducts: Object.values(data.val()),
                         isLoading: false
                         //console.log("datas", Object.values(data.val()));
                     });
                 } else {
-                    this.setState({ products: [], isEmpty: true });
+                    this.setState({ products: [], orgproducts: [], isEmpty: true });
                 }
             });
     }
@@ -108,27 +150,48 @@ export default class GalleryScreen extends React.Component {
                     transparent={true}
                     hardwareAccelerated={true}
                 >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.innerContainer}>
-                            <Text>This is content inside of Sort modal component</Text>
-                            <Button onPress={this.sortModalState(false).bind()} title="Close modal" />
-                        </View>
+                    <View style={{ height: height, backgroundColor: "#FAFAFA" }}>
+                        <Text style={{ marginLeft: 20, marginTop: 50, fontSize: 20, color: "grey" }}>Filters</Text>
+                        <Slider
+                            style={{ marginTop: 50, height: 40, width: 300 }}
+                            step={1}
+                            minimumValue={10}
+                            maximumValue={1000}
+                            thumbTintColor="#0097A7"
+                            minimumTrackTintColor="#0097A7"
+                            value={this.state.priceSlider}
+                            onValueChange={(val) => this.setState({ priceSlider: val })}
+                            onSlidingComplete={(value) => this.priceFilter(value)}
+                        />
+                        <Text style={{ marginTop: 30, marginLeft: 20, color: "grey" }}>Price Below: {this.state.priceSlider}</Text>
                     </View>
                 </Modal>
 
                 <Modal
                     visible={this.state.searchmodalv}
+                    transparent={true}
                     animationType={"fade"}
                     onRequestClose={this.searchModalState(false).bind()}
-                    transparent={true}
                     hardwareAccelerated={true}
                 >
-                    <View style={styles.modalContainer}>
-                        <View style={styles.innerContainer}>
-                            <Text>This is content inside of Search modal component</Text>
-                            <Button onPress={this.searchModalState(false).bind()} title="Close modal" />
+                    <Header style={{ backgroundColor: "white" }}>
+                        <View style={{ flexDirection: "row", alignItems: "center" }}>
+                            <TouchableOpacity onPress={this.searchModalState(false).bind()}>
+                                <Image source={searchback} style={{ height: 25, width: 25 }} />
+                            </TouchableOpacity>
+                            <TextInput
+                                placeholder="Search by product name"
+                                value={this.state.searchText}
+                                onChangeText={(searchText) => this.setState({ searchText })}
+                                onSubmitEditing={this.searchProducts(this.state.searchText).bind()}
+                                underlineColorAndroid="transparent"
+                                style={{ marginLeft: 20, width: width / 1.5 }}
+                            />
+                            <TouchableOpacity onPress={(searchText) => this.setState({ searchText: "", products: this.state.orgproducts })}>
+                                <Image source={searchclear} style={{ height: 25, width: 25 }} />
+                            </TouchableOpacity>
                         </View>
-                    </View>
+                    </Header>
                 </Modal>
 
                 <ScrollView contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>

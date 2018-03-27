@@ -99,17 +99,6 @@ class LoginScreen extends Component {
                         >
                             <Text style={{ color: "white" }}>Sign in</Text>
                         </Button>
-
-                        <Text style={{ textAlign: "center", marginTop: 40 }}>OR</Text>
-
-                        <View style={{ flex: 1, flexDirection: "row", justifyContent: "center", marginTop: 40 }}>
-                            <Button onPress={this.signoutuser()} square style={{ backgroundColor: "#0097A7", marginRight: 20 }}>
-                                <Icon name="logo-facebook" style={{ color: "white" }} />
-                            </Button>
-                            <Button square style={{ backgroundColor: "#0097A7", marginLeft: 20 }}>
-                                <Icon active name="logo-google" style={{ color: "white" }} />
-                            </Button>
-                        </View>
                     </Form>
                 </Content>
             </Container>
