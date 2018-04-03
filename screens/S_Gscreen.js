@@ -108,7 +108,7 @@ export default class S_Gscreen extends Component {
 
                     <View style={{ flexWrap: "nowrap", padding: 20, borderBottomWidth: 0.8, borderBottomColor: "grey" }}>
                         <H3 style={{ marginTop: 15, color: "grey" }}>{productdata.name}</H3>
-                        <H3 style={{ marginTop: 15, color: "grey" }}>${productdata.price.toString()}</H3>
+                        <H3 style={{ marginTop: 15, color: "grey" }}>Rs. {productdata.price.toString()}</H3>
                         <H3 style={{ marginTop: 15, color: "grey" }}>{productdata.instock ? "Available" : "Out of stock"}</H3>
                         <View style={{ flexDirection: "row", marginTop: 15 }}>
                             <H3 style={{ color: "grey" }}>Qty:</H3>
