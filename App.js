@@ -77,7 +77,7 @@ export default class App extends React.Component {
                 require("./assets/images/send.png"),
                 require("./assets/images/searchback.png"),
                 require("./assets/images/searchclear.png"),
-                require("./assets/images/options.png")
+                require("./assets/images/logout.png")
             ]),
             Expo.Font.loadAsync({
                 // Fonts can be loaded here

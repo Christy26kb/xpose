@@ -55,20 +55,6 @@ class LoginScreen extends Component {
             });
     };
 
-    signoutuser = () => () => {
-        firebase
-            .auth()
-            .signOut()
-            .then(function() {
-                // Sign-out successful.
-                alert("Signed out");
-            })
-            .catch(function(error) {
-                // An error happened.
-                alert(error);
-            });
-    };
-
     render() {
         return (
             <Container style={{ padding: 20 }}>

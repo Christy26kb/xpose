@@ -1,10 +1,10 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions, View } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions, Modal, View } from "react-native";
 import { Container, Header, Content, Form, Item, Input, Label, Icon, Button } from "native-base";
 
 import { NavigationActions } from "react-navigation";
 import navback from "../assets/images/navback.png";
-import options from "../assets/images/options.png";
+import logout from "../assets/images/logout.png";
 
 export default class UsersScreen extends React.Component {
     constructor(props) {
@@ -13,7 +13,8 @@ export default class UsersScreen extends React.Component {
             name: "",
             email: "",
             phone: "",
-            address: ""
+            address: "",
+            prompt: false
         };
     }
     static navigationOptions = {
@@ -25,6 +26,14 @@ export default class UsersScreen extends React.Component {
             routeName: route
         });
         this.props.navigation.dispatch(navigateAction);
+    };
+
+    promptState = (val) => () => {
+        this.setState({ prompt: val });
+    };
+
+    _handleTileNavigation = (pageName) => {
+        this.navigate(pageName);
     };
 
     componentWillMount() {
@@ -79,7 +88,25 @@ export default class UsersScreen extends React.Component {
                 }
             });
     };
+
+    signoutuser = () => () => {
+        var flag = 0;
+        firebase
+            .auth()
+            .signOut()
+            .then(function() {
+                // Sign-out successful.
+                alert("Signed out");
+            })
+            .catch(function(error) {
+                // An error happened.
+                alert(error);
+            });
+        this.setState({ prompt: false });
+    };
+
     render() {
+        this.navigate = this.props.navigation.navigate;
         const width = Dimensions.get("window").width;
         return (
             <Container>
@@ -87,9 +114,9 @@ export default class UsersScreen extends React.Component {
                     <TouchableOpacity onPress={this.navigateToScreen("Gallery")}>
                         <Image source={navback} style={{ height: 35, width: 35 }} />
                     </TouchableOpacity>
-                    <Text style={{ marginHorizontal: width / 5.5, color: "#FFF", fontSize: 16, fontWeight: "bold" }}>User Information</Text>
-                    <TouchableOpacity>
-                        <Image source={options} style={{ height: 35, width: 35 }} />
+                    <Text style={{ marginHorizontal: width / 5, color: "#FFF", fontSize: 16, fontWeight: "bold" }}>User Details</Text>
+                    <TouchableOpacity onPress={this.promptState(true).bind()}>
+                        <Image source={logout} style={{ height: 30, width: 30 }} />
                     </TouchableOpacity>
                 </Header>
                 <Content>
@@ -129,6 +156,28 @@ export default class UsersScreen extends React.Component {
                         </Button>
                     </ScrollView>
                 </Content>
+
+                <Modal
+                    visible={this.state.prompt}
+                    animationType={"fade"}
+                    onRequestClose={this.promptState(false).bind()}
+                    transparent={true}
+                    hardwareAccelerated={true}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.innerContainer}>
+                            <Text style={{ color: "white", fontSize: 16 }}>Are you sure to Logout!</Text>
+                            <View style={{ flexDirection: "row", marginTop: 20 }}>
+                                <Button style={styles.but} onPress={this.signoutuser().bind()}>
+                                    <Text style={{ marginHorizontal: 18 }}>Yes</Text>
+                                </Button>
+                                <Button style={styles.but} onPress={this.promptState(false).bind()}>
+                                    <Text style={{ marginHorizontal: 18 }}>No</Text>
+                                </Button>
+                            </View>
+                        </View>
+                    </View>
+                </Modal>
             </Container>
         );
     }
@@ -144,6 +193,23 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center"
+    },
+    but: {
+        backgroundColor: "white",
+        width: 60,
+        height: 35,
+        marginTop: 10,
+        marginHorizontal: 30,
+        marginBottom: 10
+    },
+    modalContainer: {
+        flex: 1,
+        justifyContent: "center"
+    },
+    innerContainer: {
+        alignItems: "center",
+        backgroundColor: "#0097A7",
+        marginHorizontal: 40
     },
     developmentModeText: {
         marginBottom: 20,
