@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, ActivityIndicator, View, Text, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, BackHandler, TouchableOpacity, ActivityIndicator, View, Text, FlatList } from "react-native";
 
 import { Container, Header, Content, Body, ListItem, List, Icon } from "native-base";
 import { NavigationActions, StackNavigator } from "react-navigation";
@@ -26,7 +26,12 @@ export default class S_Oscreen extends Component {
         this.navigate(pageName, propsObject);
     };
 
+    onBackButtonPressAndroid = () => {
+        return true;
+    };
+
     componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
         var ord = this.props.navigation.state.params;
         //TODO:'User1' will be a dynamic key obtained from user.
         var user = firebase.auth().currentUser;

@@ -6,17 +6,14 @@ import Sidebar from "../components/Sidebar.js";
 import registerForPushNotificationsAsync from "../api/registerForPushNotificationsAsync";
 
 import GalleryScreen from "../screens/GalleryScreen";
-import SearchScreen from "../screens/SearchScreen";
 import OrdersScreen from "../screens/OrdersScreen";
 import CartScreen from "../screens/CartScreen";
 import WishlistScreen from "../screens/WishlistScreen";
 import UsersScreen from "../screens/UsersScreen";
-import UserauthScreen from "../screens/UserauthScreen";
 import FeedbacksScreen from "../screens/FeedbacksScreen";
 import S_Gscreen from "../screens/S_Gscreen";
 import S_Oscreen from "../screens/S_Oscreen";
 import S_Cscreen from "../screens/S_Cscreen";
-import S_Uscreen from "../screens/S_Uscreen";
 
 const RootStackNavigator = DrawerNavigator(
     /**
@@ -57,9 +54,6 @@ const RootStackNavigator = DrawerNavigator(
         S_Cscreen: {
             screen: S_Cscreen
         },
-        S_Uscreen: {
-            screen: S_Uscreen
-        }
     },
     {
         contentComponent: Sidebar,

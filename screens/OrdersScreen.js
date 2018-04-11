@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions, ActivityIndicator, View, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, BackHandler, Dimensions, ActivityIndicator, View, FlatList } from "react-native";
 import { Container, Header, Content, Right, Left, Body, ListItem, List } from "native-base";
 
 import { NavigationActions } from "react-navigation";
@@ -18,6 +18,14 @@ export default class OrdersScreen extends React.Component {
     }
     static navigationOptions = {
         title: "Orders"
+    };
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
     };
 
     _handleTileNavigation = (pageName, propsObject) => {

@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Dimensions, View, FlatList } from "react-native";
+import { Image, Platform, BackHandler, ScrollView, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Dimensions, View, FlatList } from "react-native";
 
 import { ListItem, List, Header } from "native-base";
 
@@ -21,6 +21,14 @@ export default class WishlistScreen extends React.Component {
     }
     static navigationOptions = {
         title: "Wishlist"
+    };
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
     };
 
     navigateToScreen = (route) => () => {

@@ -1,5 +1,18 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator, Dimensions, TextInput, FlatList } from "react-native";
+import {
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    BackHandler,
+    View,
+    ActivityIndicator,
+    Dimensions,
+    TextInput,
+    FlatList
+} from "react-native";
 import { Container, Header, Content, ListItem, List, Footer, FooterTab, Textarea, Button } from "native-base";
 
 import { MonoText } from "../components/StyledText";
@@ -19,6 +32,14 @@ export default class FeedbacksScreen extends React.Component {
     }
     static navigationOptions = {
         title: "Feedbacks"
+    };
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
     };
 
     navigateToScreen = (route) => () => {

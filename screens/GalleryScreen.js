@@ -14,12 +14,13 @@ import {
     ActivityIndicator,
     Dimensions,
     Slider,
-    Picker
+    Picker,
+    BackHandler
 } from "react-native";
 
 import { Container, Header, Content, Right, Left, Body, ListItem, List, Icon, H3 } from "native-base";
 //library for creating grid layouts..
-import { NavigationActions, StackNavigator } from "react-navigation";
+import { NavigationActions } from "react-navigation";
 import * as firebase from "firebase";
 import menu from "../assets/images/menu.png";
 import searchw from "../assets/images/searchw.png";
@@ -45,6 +46,14 @@ export default class GalleryScreen extends React.Component {
             stock: "true"
         };
     }
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
+    };
 
     sortModalState = (val) => () => {
         this.setState({ sortmodalv: val });
@@ -94,16 +103,16 @@ export default class GalleryScreen extends React.Component {
         this.setState({ products: upd });
     }
 
-    componentWillMount() {
+    _fetchData = () => {
         return firebase
             .database()
             .ref("/products/")
             .on("value", (data) => {
                 /*data.forEach(function(Snapshot) {
-                    var childkey = Snapshot.key;
-                    console.log("productsvalue", childkey);
-                    // ...
-                });*/
+                var childkey = Snapshot.key;
+                console.log("productsvalue", childkey);
+                // ...
+            });*/
                 if (data.val() != undefined) {
                     this.setState({
                         products: Object.values(data.val()),
@@ -115,6 +124,10 @@ export default class GalleryScreen extends React.Component {
                     this.setState({ products: [], orgproducts: [], isEmpty: true });
                 }
             });
+    };
+
+    componentWillMount() {
+        this._fetchData();
     }
 
     render() {

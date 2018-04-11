@@ -1,5 +1,5 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, Dimensions, Modal, View } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, AsyncStorage, BackHandler, Dimensions, Modal, View } from "react-native";
 import { Container, Header, Content, Form, Item, Input, Label, Icon, Button } from "native-base";
 
 import { NavigationActions } from "react-navigation";
@@ -19,6 +19,14 @@ export default class UsersScreen extends React.Component {
     }
     static navigationOptions = {
         title: "Users"
+    };
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
     };
 
     navigateToScreen = (route) => () => {
@@ -103,6 +111,12 @@ export default class UsersScreen extends React.Component {
                 alert(error);
             });
         this.setState({ prompt: false });
+        this._signOutAsync();
+    };
+
+    _signOutAsync = async () => {
+        await AsyncStorage.setItem("userToken", "false");
+        this.props.navigation.navigate("Login");
     };
 
     render() {
@@ -111,10 +125,7 @@ export default class UsersScreen extends React.Component {
         return (
             <Container>
                 <Header style={styles.headeri}>
-                    <TouchableOpacity onPress={this.navigateToScreen("Gallery")}>
-                        <Image source={navback} style={{ height: 35, width: 35 }} />
-                    </TouchableOpacity>
-                    <Text style={{ marginHorizontal: width / 5, color: "#FFF", fontSize: 16, fontWeight: "bold" }}>User Details</Text>
+                    <Text style={{ marginHorizontal: width / 4, color: "#FFF", fontSize: 16, fontWeight: "bold" }}>User Details</Text>
                     <TouchableOpacity onPress={this.promptState(true).bind()}>
                         <Image source={logout} style={{ height: 30, width: 30 }} />
                     </TouchableOpacity>
@@ -154,6 +165,25 @@ export default class UsersScreen extends React.Component {
                         >
                             <Text style={{ color: "white" }}>Update</Text>
                         </Button>
+
+                        <View style={{ flexDirection: "row", justifyContent: "flex-end" }}>
+                            <Button
+                                onPress={() => this.props.navigation.navigate("Gallery")}
+                                style={{
+                                    marginTop: 60,
+                                    marginLeft: 20,
+                                    marginRight: 20,
+                                    marginBottom: 20,
+                                    backgroundColor: "white",
+                                    width: 80
+                                }}
+                                full
+                                square
+                                success
+                            >
+                                <Text style={{ color: "#0097A7", fontSize: 16 }}>Gallery>></Text>
+                            </Button>
+                        </View>
                     </ScrollView>
                 </Content>
 

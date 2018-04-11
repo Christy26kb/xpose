@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, BackHandler, TouchableOpacity, View, Text, FlatList } from "react-native";
 import { Container, Header, Content, Body, ListItem, List, Icon, Footer, FooterTab } from "native-base";
 import { NavigationActions, StackNavigator } from "react-navigation";
 import navback from "../assets/images/navback.png";
@@ -19,7 +19,12 @@ export default class S_Cscreen extends Component {
         this.setState({
             orderproducts: Object.values(this.props.navigation.state.params)
         });
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
     }
+
+    onBackButtonPressAndroid = () => {
+        return true;
+    };
 
     navigateToScreen = (route) => () => {
         const navigateAction = NavigationActions.navigate({

@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Image, Platform, ScrollView, StyleSheet, TouchableOpacity, View, Text, FlatList, Picker } from "react-native";
+import { Image, Platform, ScrollView, StyleSheet, BackHandler, TouchableOpacity, View, Text, FlatList, Picker } from "react-native";
 
 import { Container, Header, Footer, FooterTab, Content, Body, ListItem, List, Icon, H3, H1, H2 } from "native-base";
 
@@ -13,6 +13,14 @@ export default class S_Gscreen extends Component {
         super(props);
         this.state = { quantity: "1" };
     }
+
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
+    };
 
     addToWishlist = () => () => {
         //console.log("check", this.props.navigation.state.params);

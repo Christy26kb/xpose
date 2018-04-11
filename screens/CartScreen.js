@@ -1,5 +1,19 @@
 import React from "react";
-import { Image, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View, Dimensions, FlatList, Modal, ActivityIndicator, Button } from "react-native";
+import {
+    Image,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    Dimensions,
+    BackHandler,
+    FlatList,
+    Modal,
+    ActivityIndicator,
+    Button
+} from "react-native";
 
 import { ListItem, List, Header, Picker, Footer, FooterTab } from "native-base";
 
@@ -30,6 +44,14 @@ export default class CartScreen extends React.Component {
         this.fetchCartData();
     }
 
+    componentDidMount() {
+        BackHandler.addEventListener("hardwareBackPress", this.onBackButtonPressAndroid);
+    }
+
+    onBackButtonPressAndroid = () => {
+        return true;
+    };
+
     fetchCartData = () => {
         var update = [];
         var sum = 0;
@@ -53,6 +75,7 @@ export default class CartScreen extends React.Component {
                             .ref("/products/" + c)
                             .on("value", (dat) => {
                                 if (dat.val() != undefined) {
+                                    console.log(dat.val().price);
                                     sum = sum + dat.val().price;
                                     var x = dat.val();
                                     update.push(x);

@@ -2,9 +2,19 @@ import React from "react";
 import { Platform, StatusBar, StyleSheet, View, AsyncStorage } from "react-native";
 import { AppLoading, Asset, Font } from "expo";
 import { Ionicons } from "@expo/vector-icons";
-import RootNavigation from "./navigation/RootNavigation";
-import UserauthScreen from "./screens/UserauthScreen";
-import { TabNavigator, NavigationActions } from "react-navigation";
+import Sidebar from "./components/Sidebar.js";
+import { DrawerNavigator, NavigationActions } from "react-navigation";
+import GalleryScreen from "./screens/GalleryScreen";
+import OrdersScreen from "./screens/OrdersScreen";
+import CartScreen from "./screens/CartScreen";
+import WishlistScreen from "./screens/WishlistScreen";
+import UsersScreen from "./screens/UsersScreen";
+import FeedbacksScreen from "./screens/FeedbacksScreen";
+import LoginScreen from "./screens/LoginScreen";
+import SignupScreen from "./screens/SignupScreen";
+import S_Gscreen from "./screens/S_Gscreen";
+import S_Oscreen from "./screens/S_Oscreen";
+import S_Cscreen from "./screens/S_Cscreen";
 
 import * as firebase from "firebase";
 //..Setting the necessary firebase config options
@@ -22,38 +32,80 @@ firebase.initializeApp(firebaseconfig);
 export default class App extends React.Component {
     constructor(props) {
         super(props);
-        this.flow();
+        this._bootstrapAsync();
         this.state = {
             isLoadingComplete: false,
-            login: false
+            login: false,
+            routename: ""
         };
     }
 
-    flow = () => {
-        var u = firebase.auth().currentUser;
-        if (u) {
-            this.setState({ login: true });
-        }
+    _createRootNavigator = (load) => {
+        return DrawerNavigator(
+            {
+                Gallery: {
+                    screen: GalleryScreen
+                },
+                Orders: {
+                    screen: OrdersScreen
+                },
+                Cart: {
+                    screen: CartScreen
+                },
+                Wishlist: {
+                    screen: WishlistScreen
+                },
+                Users: {
+                    screen: UsersScreen
+                },
+                Feedbacks: {
+                    screen: FeedbacksScreen
+                },
+                Login: {
+                    screen: LoginScreen
+                },
+                Signup: {
+                    screen: SignupScreen
+                },
+                //...starting of sub screens.....
+                S_Gscreen: {
+                    screen: S_Gscreen
+                },
+                S_Oscreen: {
+                    screen: S_Oscreen
+                },
+                S_Cscreen: {
+                    screen: S_Cscreen
+                }
+            },
+            {
+                initialRouteName: load,
+                contentComponent: Sidebar,
+                drawerWidth: 280
+            }
+        );
     };
-    //TODO:Use componentDidMount or other lifecycle method to solve login state problem,read from async storage there.
+
+    // Fetch the token from storage then navigate to our appropriate place
+    _bootstrapAsync = async () => {
+        const userToken = await AsyncStorage.getItem("userToken");
+        this.setState({ login: userToken == "true" ? true : false, routename: userToken == "true" ? "Gallery" : "Login" });
+        console.log("App.js usertoken", userToken);
+        console.log("App.js route", this.state.routename);
+    };
 
     render() {
+        const Layout = this._createRootNavigator(this.state.routename);
         if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
             return <AppLoading startAsync={this._loadResourcesAsync} onError={this._handleLoadingError} onFinish={this._handleFinishLoading} />;
         } else {
-            if (1) {
-                // User is signed in.
-                return (
-                    <View style={styles.container}>
-                        {Platform.OS === "ios" && <StatusBar barStyle="default" />}
-                        {Platform.OS === "android" && <View style={styles.statusBarUnderlay} />}
-                        <RootNavigation />
-                    </View>
-                );
-            } else {
-                // No user is signed in.
-                return <UserauthScreen />;
-            }
+            return (
+                <View style={styles.container}>
+                    {Platform.OS === "ios" && <StatusBar barStyle="default" />}
+                    {Platform.OS === "android" && <View style={styles.statusBarUnderlay} />}
+                    <Layout />
+                </View>
+            );
         }
     }
 
@@ -86,19 +138,6 @@ export default class App extends React.Component {
                 Ionicons: require("@expo/vector-icons/fonts/Ionicons.ttf")
             })
         ]);
-
-        //.. Load data from asynstorage  for the  login state:{true/false}..
-        /*var user = firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                // User is signed in.
-                alert("Signed in!");
-                f = 1;
-            } else {
-                // No user is signed in.
-                alert("Signed out!");
-                f = 0;
-            }
-        });*/
     };
 
     _handleLoadingError = (error) => {
