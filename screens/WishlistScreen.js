@@ -5,7 +5,6 @@ import { ListItem, List, Header } from "native-base";
 
 import { NavigationActions, StackNavigator } from "react-navigation";
 import navback from "../assets/images/navback.png";
-import Home from "../screens/HomeScreen";
 
 import { MonoText } from "../components/StyledText";
 import WishTile from "../components/WishTile";

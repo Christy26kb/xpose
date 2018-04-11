@@ -20,7 +20,6 @@ import { ListItem, List, Header, Picker, Footer, FooterTab } from "native-base";
 import { NavigationActions } from "react-navigation";
 import * as firebase from "firebase";
 import navback from "../assets/images/navback.png";
-import Home from "../screens/HomeScreen";
 
 import { MonoText } from "../components/StyledText";
 import CarTile from "../components/CarTile";

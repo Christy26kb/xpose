@@ -90,8 +90,6 @@ export default class App extends React.Component {
     _bootstrapAsync = async () => {
         const userToken = await AsyncStorage.getItem("userToken");
         this.setState({ login: userToken == "true" ? true : false, routename: userToken == "true" ? "Gallery" : "Login" });
-        console.log("App.js usertoken", userToken);
-        console.log("App.js route", this.state.routename);
     };
 
     render() {
@@ -112,12 +110,6 @@ export default class App extends React.Component {
     _loadResourcesAsync = async () => {
         return Promise.all([
             Asset.loadAsync([
-                require("./assets/images/gallery.png"),
-                require("./assets/images/search.png"),
-                require("./assets/images/search2.png"),
-                require("./assets/images/cart.png"),
-                require("./assets/images/users.png"),
-                require("./assets/images/orders.png"),
                 require("./assets/images/menu.png"),
                 require("./assets/images/navback.png"),
                 require("./assets/images/searchw.png"),
